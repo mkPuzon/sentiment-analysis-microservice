@@ -1,0 +1,39 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  # FastAPI applicationf
+  api:
+    build: . # build image from Dockerfile in this directory
+    ports: 
+      - "8000:8000" # map poet 8000 on machine to port 8000 in container
+    volumes:
+      - .:/app # mount curr dir into /app for live-reloading
+    env_file:
+      - .env
+    depends_on:
+      - db # wait for db service to be healthy before starting
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    env_file:
+      - .env
+    ports:
+      - "5432:5432" # expose postgres port (for debugging)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # persist database data
+    healthcheck:
+      # test if Postgres is ready to accept connections
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+volumes:
+  postgres_data:
