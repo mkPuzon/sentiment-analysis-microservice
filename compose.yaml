@@ -1,14 +1,5 @@
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Docker Compose reference guide at
-# https://docs.docker.com/go/compose-spec-reference/
-
-# Here the instructions define your application as a service called "server".
-# This service is built from the Dockerfile in the current directory.
-# You can add other services your application may depend on here, such as a
-# database or a cache. For examples, see the Awesome Compose repository:
-# https://github.com/docker/awesome-compose
 services:
-  # FastAPI applicationf
+  # FastAPI application
   api:
     build: . # build image from Dockerfile in this directory
     ports: 
@@ -19,6 +10,10 @@ services:
       - .env
     depends_on:
       - db # wait for db service to be healthy before starting
+    develop:
+      watch:
+        - action: rebuild
+          path: .
   # PostgreSQL database
   db:
     image: postgres:15-alpine
