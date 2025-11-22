@@ -1,118 +1,129 @@
-# Hugging Face Sentiment Analysis API
+# Sentiment Analysis Microservice
 
-A robust REST API built with FastAPI that interfaces with Hugging Face Transformers to perform sentiment analysis. All incoming queries and their inference results are automatically logged to a PostgreSQL database.
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?logo=fastapi&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Container-2496ED?logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql&logoColor=white)
+![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Transformers-FFD21E?logo=huggingface&logoColor=black)
 
-The entire application is containerized using Docker for easy deployment and consistency.
+A production-ready microservice for real-time sentiment analysis, built with **FastAPI**, **Hugging Face Transformers**, and **PostgreSQL**. This project demonstrates a complete end-to-end ML pipeline, from model inference to data persistence and visualization.
 
-### Tech Stack
+## Architecture
 
-Framework: FastAPI (Python 3.12.3)
+The system is composed of three main containerized services orchestrated by Docker Compose:
 
-Database: PostgreSQL (v15)
+```mermaid
+graph TD
+    Client[Client / User] -->|HTTP POST /query| API[FastAPI Service]
+    API -->|Inference| Model[Hugging Face Model]
+    Model -->|Sentiment Score| API
+    API -->|Log Request| DB[(PostgreSQL Database)]
+    
+    User2[Dashboard User] -->|View Analytics| Dash[Streamlit Dashboard]
+    Dash -->|Read Logs| DB
+```
 
-ORM: SQLAlchemy
+## Key Features
 
-ML Model: Hugging Face Transformers (distilbert-base-uncased-finetuned-sst-2-english)
+- **High-Performance API**: Built on FastAPI for asynchronous processing and high throughput.
+- **State-of-the-Art NLP**: Utilizes a pre-trained `distilbert-base-uncased` model fine-tuned for sentiment analysis.
+- **Persistent Logging**: Automatically captures all requests, predictions, and confidence scores in a PostgreSQL database.
+- **Interactive Dashboard**: Real-time visualization of sentiment trends and data distribution using Streamlit.
+- **Containerized Deployment**: Fully Dockerized environment ensuring consistency across development and production.
 
-Containerization: Docker & Docker Compose
+## Project Structure
+
+```text
+sentiment-analysis-microservice/
+├── app/                    # Main FastAPI application
+│   ├── main.py             # API endpoints and logic
+│   └── ...
+├── dashboard/              # Streamlit visualization app
+│   ├── app.py              # Dashboard logic
+│   └── Dockerfile          # Dashboard specific container
+├── assets/                 # Static assets (images, etc.)
+├── compose.yaml            # Docker Compose orchestration
+├── Dockerfile              # API container definition
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
+```
+
+## Technical Deep Dive
+
+### Machine Learning Model
+We use **DistilBERT** (`distilbert-base-uncased-finetuned-sst-2-english`), a smaller, faster, cheaper, and lighter version of BERT. It offers 97% of BERT's performance while being 40% lighter and 60% faster, making it ideal for real-time microservices where latency is critical.
+
+### Database Design
+**PostgreSQL** is used for its reliability and robust support for structured data. The application uses **SQLAlchemy** as an ORM to interact with the database, ensuring SQL injection protection and easy schema management.
+- **Schema**: `query_logs` table stores timestamp, input text, predicted label, and confidence score.
+
+### Containerization
+The project uses a multi-container **Docker** setup:
+1.  **API Service**: Runs the FastAPI app.
+2.  **Database**: Official PostgreSQL image.
+3.  **Dashboard**: Streamlit app for analytics.
+All services communicate via a private Docker network, with only necessary ports exposed to the host.
 
 ## Getting Started
 
-Clone the repository:
+### Prerequisites
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed.
 
-git clone [https://github.com/mkPuzon/sentiment-analysis-microservice.git](https://github.com/mkPuzon/sentiment-analysis-microservice.git)
-cd sentiment-analysis-microservice
+### Installation
 
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/mkPuzon/sentiment-analysis-microservice.git
+    cd sentiment-analysis-microservice
+    ```
 
-Configure Environment Variables:
-Create a .env file in the root directory. You can copy the example below:
+2.  **Configure Environment**
+    Create a `.env` file in the root directory:
+    ```ini
+    POSTGRES_USER=testuser
+    POSTGRES_PASSWORD=testpass
+    POSTGRES_DB=testdb
+    POSTGRES_HOST=db
+    POSTGRES_PORT=5432
+    DATABASE_URL=postgresql+psycopg2://testuser:testpass@db:5432/testdb
+    ```
 
-```
-POSTGRES_USER=testuser
-POSTGRES_PASSWORD=testpass
-POSTGRES_DB=testdb
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-DATABASE_URL=postgresql+psycopg2://testuser:testpass@db:5432/testdb
-```
+3.  **Build and Run**
+    ```bash
+    docker-compose up --build
+    ```
+    *Note: The first run will download the ML model (~250MB), which may take a moment.*
 
+## API Usage
 
-### Build and Run:
-Run the application using Docker Compose. This will build the API image and pull the Postgres image.
+Once running, the API is available at `http://localhost:8000`.
 
-docker-compose up --build
+- **Swagger UI**: Interactive documentation at `http://localhost:8000/docs`
+- **ReDoc**: Alternative documentation at `http://localhost:8000/redoc`
 
-
-Note: The first run may take a minute as it downloads the PyTorch libraries and the Hugging Face model.
-
-### API Usage
-
-Once the container is running, the API is accessible at http://localhost:8000.
-
-1. Interactive Documentation (Swagger UI)
-
-Visit http://localhost:8000/docs to explore the endpoints and test them directly in your browser.
-
-2. Query the Model
-
-Send a POST request to the /query endpoint to analyze text.
-
-Request:
+### Example Query
 ```bash
 curl -X POST "http://localhost:8000/query" \
      -H "Content-Type: application/json" \
-     -d '{"text": "This API is incredibly fast and useful!"}'
+     -d '{"text": "The deployment process was incredibly smooth and efficient!"}'
 ```
 
-Response:
-
-```bash
+**Response:**
+```json
 {
-  "input_text": "This API is incredibly fast and useful!",
+  "input_text": "The deployment process was incredibly smooth and efficient!",
   "sentiment_label": "POSITIVE",
   "sentiment_score": 0.9998
 }
 ```
 
+## Analytics Dashboard
 
-## Database Schema
+Access the live dashboard at `http://localhost:8501`.
 
-The application uses a simple schema to log requests. The query_logs table includes:
-- id: Primary Key
-- timestamp: When the query was made
-- input_text: The user's query
-- model_label: The result (POSITIVE/NEGATIVE)
-- model_score: Confidence score (0.0 - 1.0)
+![Dashboard Preview](/assets/dashboard.png)
 
-## Interactive Dashboard
-
-![DashboardImage](/assets/dashboard.png)
-
-The project includes a Streamlit dashboard to visualize the sentiment analysis logs in real-time.
-
-### Features
-- **Real-time Monitoring**: Auto-refresh capability to see new queries as they come in.
-- **Data Filtering**: Filter logs by time range (Last Hour, 24 Hours, 7 Days) and sentiment label.
-- **Visualizations**:
-  - Sentiment Distribution (Pie Chart)
-  - Confidence Score Distribution (Histogram)
-  - Sentiment Trends Over Time (Scatter Plot)
-- **Data Export**: Download query logs as a CSV file.
-
-### Running the Dashboard
-To run the dashboard locally:
-
-1. Ensure your virtual environment is active and dependencies are installed:
-   ```bash
-   pip install streamlit plotly pandas sqlalchemy psycopg2-binary python-dotenv
-   ```
-
-2. Run the Streamlit app:
-   ```bash
-   streamlit run dashboard/app.py
-   ```
-
-The dashboard will be available at `http://localhost:8501`.
-
-> [!NOTE]
-> If running the dashboard locally outside of Docker, ensure your `DATABASE_URL` in `.env` points to `localhost` instead of `db` (e.g., `postgresql+psycopg2://testuser:testpass@localhost:5432/testdb`).
+The dashboard provides real-time insights:
+- **Sentiment Distribution**: Pie chart of Positive vs. Negative queries.
+- **Confidence Analysis**: Histogram showing model certainty.
+- **Temporal Trends**: Scatter plot of sentiment over time.
