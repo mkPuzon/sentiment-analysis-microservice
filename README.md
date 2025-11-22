@@ -83,3 +83,36 @@ The application uses a simple schema to log requests. The query_logs table inclu
 - input_text: The user's query
 - model_label: The result (POSITIVE/NEGATIVE)
 - model_score: Confidence score (0.0 - 1.0)
+
+## Interactive Dashboard
+
+![DashboardImage](/assets/dashboard.png)
+
+The project includes a Streamlit dashboard to visualize the sentiment analysis logs in real-time.
+
+### Features
+- **Real-time Monitoring**: Auto-refresh capability to see new queries as they come in.
+- **Data Filtering**: Filter logs by time range (Last Hour, 24 Hours, 7 Days) and sentiment label.
+- **Visualizations**:
+  - Sentiment Distribution (Pie Chart)
+  - Confidence Score Distribution (Histogram)
+  - Sentiment Trends Over Time (Scatter Plot)
+- **Data Export**: Download query logs as a CSV file.
+
+### Running the Dashboard
+To run the dashboard locally:
+
+1. Ensure your virtual environment is active and dependencies are installed:
+   ```bash
+   pip install streamlit plotly pandas sqlalchemy psycopg2-binary python-dotenv
+   ```
+
+2. Run the Streamlit app:
+   ```bash
+   streamlit run dashboard/app.py
+   ```
+
+The dashboard will be available at `http://localhost:8501`.
+
+> [!NOTE]
+> If running the dashboard locally outside of Docker, ensure your `DATABASE_URL` in `.env` points to `localhost` instead of `db` (e.g., `postgresql+psycopg2://testuser:testpass@localhost:5432/testdb`).
