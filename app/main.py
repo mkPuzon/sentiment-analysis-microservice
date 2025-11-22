@@ -1,5 +1,6 @@
-'''main.py
+'''app/main.py
 
+Main logic for sentiment analysis API. Connects to a PostgreSQL db and serves the API via FastAPI.
 
 Nov 2025
 '''
@@ -8,14 +9,12 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from transformers import pipeline
-import sqlalchemy
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, func, Text
 from contextlib import asynccontextmanager
 
 # ---- Configuration & Environment ----
 
-# Load environment variables from .env file
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
@@ -34,15 +33,13 @@ except Exception as e:
 
 # ---- Database Setup (SQLAlchemy) ----
 
-# Create the SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
-# Create a session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create a base class for our declarative models
+# create a base class for declarative models
 class Base(DeclarativeBase):
     pass
-# Define our QueryLog database model
+
 class QueryLog(Base):
     __tablename__ = "query_logs"
 
@@ -52,7 +49,6 @@ class QueryLog(Base):
     model_label = Column(String, nullable=True)
     model_score = Column(Float, nullable=True)
 
-# Function to create tables (we'll call this on startup)
 def create_db_tables():
     try:
         Base.metadata.create_all(bind=engine)
