@@ -34,6 +34,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
+# Pre-download the Hugging Face model to the cache during build
+RUN python -c "from transformers import pipeline; pipeline('sentiment-analysis', model='distilbert-base-uncased-finetuned-sst-2-english')"
+
 # Switch to the non-privileged user to run the application.
 USER appuser
 
