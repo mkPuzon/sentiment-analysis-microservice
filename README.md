@@ -1,4 +1,4 @@
-# Sentiment Analysis Microservice
+# ❯❯❯❯ Sentiment Analysis Microservice
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -6,7 +6,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Transformers-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/docs/transformers)
 
-A production-ready microservice for real-time sentiment analysis, built with **FastAPI**, **Hugging Face Transformers**, and **PostgreSQL**. This project demonstrates a complete end-to-end ML pipeline, from model inference to data persistence and visualization.
+A production-ready microservice for real-time sentiment analysis, built with **FastAPI**, **Hugging Face Transformers**, and **PostgreSQL**. This project demonstrates an ML pipeline from model inference to data persistence and visualization.
 
 ## Architecture
 
@@ -48,7 +48,7 @@ sentiment-analysis-microservice/
 └── README.md               # Project documentation
 ```
 
-## Technical Deep Dive
+## Technical Details
 
 ### Machine Learning Model
 We use **DistilBERT** (`distilbert-base-uncased-finetuned-sst-2-english`), a smaller, faster, cheaper, and lighter version of BERT. It offers 97% of BERT's performance while being 40% lighter and 60% faster, making it ideal for real-time microservices where latency is critical.
@@ -105,13 +105,13 @@ Once running, the API is available at `http://localhost:8000`.
 ```bash
 curl -X POST "http://localhost:8000/query" \
      -H "Content-Type: application/json" \
-     -d '{"text": "The deployment process was incredibly smooth and efficient!"}'
+     -d '{"text": "Hey this project is pretty cool!"}'
 ```
 
 **Response:**
 ```json
 {
-  "input_text": "The deployment process was incredibly smooth and efficient!",
+  "input_text": "Hey this project is pretty cool!",
   "sentiment_label": "POSITIVE",
   "sentiment_score": 0.9998
 }
