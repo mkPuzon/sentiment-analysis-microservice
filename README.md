@@ -20,7 +20,7 @@ graph TD
     API -->|Log Request| DB[(PostgreSQL Database)]
     
     User2[Dashboard User] -->|View Analytics| Dash[Streamlit Dashboard]
-    Dash -->|Read Logs| DB
+    Dash <-->|Read Logs| DB
 ```
 
 ## Key Features
