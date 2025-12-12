@@ -10,7 +10,7 @@ A production-ready microservice for real-time sentiment analysis, built with **F
 
 ## Architecture
 
-The system is composed of three main containerized services orchestrated by Docker Compose:
+The system is composed of three main containerized services (API, database, dashboard) orchestrated by Docker Compose:
 
 ```mermaid
 graph TD
