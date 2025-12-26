@@ -90,7 +90,7 @@ All services communicate via a private Docker network, with only necessary ports
 
 3.  **Build and Run**
     ```bash
-    docker-compose up --build
+    docker compose up --build
     ```
     *Note: The first run will download the ML model (~250MB), which may take a moment.*
 
